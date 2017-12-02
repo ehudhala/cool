@@ -30,3 +30,14 @@
 *.exe
 *.out
 *.app
+
+cgen
+cool-lex.cc
+mycoolc
+parser
+semant
+
+handle_flags.cc
+lextest.cc
+stringtab.cc
+utilities.cc
