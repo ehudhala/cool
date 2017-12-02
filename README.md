@@ -1,2 +1,2 @@
 # cool
-The cool programming language
+The cool programming language.
