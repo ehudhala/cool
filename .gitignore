@@ -43,3 +43,6 @@ stringtab.cc
 utilities.cc
 
 lexer
+
+cool-parse.h
+test.output
