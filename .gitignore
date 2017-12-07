@@ -46,3 +46,10 @@ lexer
 
 cool-parse.h
 test.output
+
+*.vim
+cool-io.
+grading/
+out
+pa1-grad
+test.sh
