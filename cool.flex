@@ -81,7 +81,9 @@ std::string escape(const std::string& str) {
 
 std::string extract_string_content(std::string& str) {
     remove_surrounding_quotes(str);
-    str = escape(str);
+    if (str.size() > 0) {
+        str = escape(str);
+    }
     return str;
 }
 
