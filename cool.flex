@@ -56,11 +56,6 @@ std::map<char, char> get_special_chars() {
     return special_chars;
 }
 
-void remove_surrounding_quotes(std::string& str) {
-    str.resize(str.size() - 1);
-    str.erase(0, 1);
-}
-
 std::string escape(const std::string& str) {
     std::string escaped;
     std::map<char, char> special_chars = get_special_chars();
@@ -80,7 +75,6 @@ std::string escape(const std::string& str) {
 
 
 std::string extract_string_content(std::string& str) {
-    remove_surrounding_quotes(str);
     if (str.size() > 0) {
         str = escape(str);
     }
@@ -88,6 +82,9 @@ std::string extract_string_content(std::string& str) {
 }
 
 %}
+
+%x COMMENT
+%x STRING
 
 /*
  * Define names for regular expressions here.
@@ -98,8 +95,6 @@ UPPERCASE       [A-Z]
 DIGIT           [0-9]
 
 ID_CHAR         {LOWERCASE}|{UPPERCASE}|{DIGIT}|_
-
-STR_CONTENT     (.*(\\\n)?)*
 
 /*
  * Keywords.
@@ -131,13 +126,21 @@ SYMBOL          \+|\/|-|\*|=|<|\.|~|,|;|:|\(|\)|@|\{|\}
 BOOL_TRUE       t(?i:rue)
 BOOL_FALSE      f(?i:alse)
 
-STRING          \"{STR_CONTENT}\"
-UNTERMINATED_STRING  \"{STR_CONTENT}<<EOF>>
+STR_DELIMITER   \"
+STR_CONTENT     ([^\"\n]*(\\\n)?)*
 
 TYPEID          {UPPERCASE}{ID_CHAR}*
 OBJECTID        {LOWERCASE}{ID_CHAR}*
 
 INT             {DIGIT}*
+
+SINGLE_LINE_COMMENT --.*\n
+
+COMMENT_BEGIN   \(\*
+COMMENT_CONTENT ([^*]|\*[^)])*
+COMMENT_END     \*\)
+
+WHITESPACE      [ \t]+
 
 %%
 
@@ -198,7 +201,14 @@ INT             {DIGIT}*
     return INT_CONST;
 }
 
-{STRING} {
+{STR_DELIMITER} { BEGIN(STRING); }
+
+<STRING>{STR_CONTENT} {
+    yymore();
+}
+
+<STRING>{STR_DELIMITER} {
+    BEGIN(INITIAL);
     std::string str = yytext;
 
     curr_lineno += std::count(str.begin(), str.end(), '\n');
@@ -212,7 +222,18 @@ INT             {DIGIT}*
     curr_lineno++;
 }
 
-.
+{SINGLE_LINE_COMMENT}
+
+{COMMENT_BEGIN} { BEGIN(COMMENT); }
+
+<COMMENT>{COMMENT_CONTENT} {
+    std::string str = yytext;
+    curr_lineno += std::count(str.begin(), str.end(), '\n');
+}
+
+<COMMENT>{COMMENT_END} { BEGIN(INITIAL); }
+
+{WHITESPACE}
 
  /*
   * Keywords are case-insensitive except for the values true and false,
