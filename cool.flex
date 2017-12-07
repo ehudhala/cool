@@ -233,6 +233,18 @@ WHITESPACE      [ \t]+
 
 <COMMENT>{COMMENT_END} { BEGIN(INITIAL); }
 
+<COMMENT><<EOF>> {
+    BEGIN(INITIAL);
+    cool_yylval.error_msg = "EOF in comment";
+    return ERROR;
+}
+
+{COMMENT_END} {
+    BEGIN(INITIAL);
+    cool_yylval.error_msg = "Unmatched *)";
+    return ERROR;
+}
+
 {WHITESPACE}
 
  /*
