@@ -53,3 +53,5 @@ grading/
 out
 pa1-grad
 test.sh
+.swp
+cool-io.h
