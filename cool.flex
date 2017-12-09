@@ -247,6 +247,11 @@ WHITESPACE      [ \t]+
 
 {WHITESPACE}
 
+. {
+    cool_yylval.error_msg = yytext;
+    return ERROR;
+}
+
  /*
   * Keywords are case-insensitive except for the values true and false,
   * which must begin with a lower-case letter.
