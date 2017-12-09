@@ -218,6 +218,13 @@ WHITESPACE      [ \t]+
     return STR_CONST;
 }
 
+<STRING><<EOF>> {
+    YY_FLUSH_BUFFER;
+    BEGIN(INITIAL);
+    cool_yylval.error_msg = "EOF in string constant";
+    return ERROR;
+}
+
 \n {
     curr_lineno++;
 }
